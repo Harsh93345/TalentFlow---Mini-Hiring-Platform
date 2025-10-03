@@ -9,12 +9,12 @@ TALENTFLOW is a front-end-only React application designed to simulate a mini hir
 
 ---
 
-## 🚀 Live Demo & Repository
+## Live Demo & Repository
 
-- **Deployed App:** `[LINK TO YOUR DEPLOYED APP]`
-- **GitHub Repo:** `[LINK TO YOUR GITHUB REPO]`
+- **Deployed App:** https://talent-flow-mini-hiring-platform-two.vercel.app/
+- **GitHub Repo:** https://github.com/Harsh93345/TalentFlow---Mini-Hiring-Platform.git
 
-## ✨ Features
+## Features
 
 ### 1. Job Management
 - **Interactive Jobs Board:** List jobs with server-like pagination and filtering by title, status, and tags.
@@ -36,7 +36,7 @@ TALENTFLOW is a front-end-only React application designed to simulate a mini hir
 - **Robust Form Runtime:** A candidate-facing form with built-in validation rules (required, numeric range, etc.) and conditional logic (e.g., show Q3 only if Q1 is "Yes").
 - **Local Persistence:** The builder's state and candidate responses are saved locally, ensuring no data is lost.
 
-## 🛠️ Tech Stack & Architecture
+## Tech Stack & Architecture
 
 This project uses a modern, performant, and scalable front-end architecture.
 
@@ -49,7 +49,7 @@ This project uses a modern, performant, and scalable front-end architecture.
 - **Forms:** React Hook Form & Zod for efficient and type-safe form validation.
 - **Routing:** React Router DOM for client-side routing.
 
-## ⚙️ Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v18 or higher)
@@ -72,9 +72,9 @@ This project uses a modern, performant, and scalable front-end architecture.
     ```sh
     npm run dev
     ```
-The application will be available at `http://localhost:5173`.
 
-## 📐 Architecture & Technical Decisions
+
+## Architecture & Technical Decisions
 
 ### Architecture Overview
 The application is a true front-end-only SPA.
