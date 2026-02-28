@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { SectionBuilder } from './SectionBuilder';
 import { AssessmentPreview } from './AssessmentPreview';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { fetchAssessmentByJobId, upsertAssessmentByJobId } from '@/lib/api';
 
 interface AssessmentBuilderProps {
   jobId: string;
@@ -26,7 +27,20 @@ export function AssessmentBuilder({ jobId, initialData }: AssessmentBuilderProps
   const [sections, setSections] = useState<AssessmentSection[]>(initialData?.sections || []);
   const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(!!jobId);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!jobId) return;
+    let cancelled = false;
+    fetchAssessmentByJobId(jobId).then((data) => {
+      if (cancelled || !data) return;
+      setTitle(data.title || '');
+      setDescription(data.description || '');
+      setSections(Array.isArray(data.sections) ? data.sections : []);
+    }).finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [jobId]);
 
   const addSection = () => {
     const newSection: AssessmentSection = {
@@ -61,18 +75,12 @@ export function AssessmentBuilder({ jobId, initialData }: AssessmentBuilderProps
 
     setSaving(true);
     try {
-      const response = await fetch(`/api/assessments/${jobId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          description,
-          sections,
-          isActive: true
-        })
+      await upsertAssessmentByJobId(jobId, {
+        title,
+        description,
+        sections,
+        isActive: true
       });
-
-      if (!response.ok) throw new Error('Failed to save assessment');
 
       toast({
         title: 'Assessment Saved',

@@ -3,10 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AppLayout } from "./components/layout/AppLayout";
-import { useEffect } from "react";
-import { enableMocking } from "./lib/mswSetup";
-import { checkAndSeedDatabase } from "./lib/seedData";
+import { AppLayout } from "./components/layout/AppLayout.tsx";
 
 // Pages
 import Dashboard from "./pages/Dashboard.tsx";
@@ -20,18 +17,6 @@ import NotFound from "./pages/NotFound.tsx";
 const queryClient = new QueryClient();
 
 const App = () => {
-  useEffect(() => {
-    const initializeApp = async () => {
-      // Enable MSW for API mocking
-      await enableMocking();
-      
-      // Check and seed database if needed
-      await checkAndSeedDatabase();
-    };
-
-    initializeApp();
-  }, []);
-
   return (
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>

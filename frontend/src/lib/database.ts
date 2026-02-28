@@ -1,17 +1,17 @@
-import Dexie, { type Table } from 'dexie';
+// Types only – data comes from the real API (see api.ts). No Dexie/db.
 
 export interface Job {
   id: string;
   title: string;
   slug: string;
-  status: 'active' | 'archived';
+  status: "active" | "archived";
   tags: string[];
   order: number;
   description?: string;
   location?: string;
   department?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface Candidate {
@@ -19,12 +19,12 @@ export interface Candidate {
   name: string;
   email: string;
   phone?: string;
-  stage: 'applied' | 'screen' | 'tech' | 'offer' | 'hired' | 'rejected';
+  stage: "applied" | "screen" | "tech" | "offer" | "hired" | "rejected";
   jobId: string;
   resume?: string;
   notes?: CandidateNote[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface CandidateNote {
@@ -33,17 +33,21 @@ export interface CandidateNote {
   authorId: string;
   authorName: string;
   mentions: string[];
-  createdAt: Date;
+  createdAt: Date | string;
 }
 
 export interface CandidateTimeline {
   id: string;
   candidateId: string;
-  type: 'stage_change' | 'note_added' | 'assessment_completed' | 'interview_scheduled';
+  type:
+    | "stage_change"
+    | "note_added"
+    | "assessment_completed"
+    | "interview_scheduled";
   fromStage?: string;
   toStage?: string;
   description: string;
-  createdAt: Date;
+  createdAt: Date | string;
 }
 
 export interface Assessment {
@@ -53,8 +57,8 @@ export interface Assessment {
   description?: string;
   sections: AssessmentSection[];
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface AssessmentSection {
@@ -67,7 +71,13 @@ export interface AssessmentSection {
 
 export interface AssessmentQuestion {
   id: string;
-  type: 'single-choice' | 'multi-choice' | 'short-text' | 'long-text' | 'numeric' | 'file-upload';
+  type:
+    | "single-choice"
+    | "multi-choice"
+    | "short-text"
+    | "long-text"
+    | "numeric"
+    | "file-upload";
   question: string;
   description?: string;
   required: boolean;
@@ -88,29 +98,8 @@ export interface AssessmentResponse {
   id: string;
   assessmentId: string;
   candidateId: string;
-  responses: Record<string, any>;
-  completedAt?: Date;
-  createdAt: Date;
-  updatedAt: Date;
+  responses: Record<string, unknown>;
+  completedAt?: Date | string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
-
-export class TalentFlowDB extends Dexie {
-  jobs!: Table<Job>;
-  candidates!: Table<Candidate>;
-  candidateTimeline!: Table<CandidateTimeline>;
-  assessments!: Table<Assessment>;
-  assessmentResponses!: Table<AssessmentResponse>;
-
-  constructor() {
-    super('TalentFlowDB');
-    this.version(1).stores({
-      jobs: 'id, title, status, *tags, order, createdAt',
-      candidates: 'id, name, email, stage, jobId, createdAt',
-      candidateTimeline: 'id, candidateId, type, createdAt',
-      assessments: 'id, jobId, title, isActive, createdAt',
-      assessmentResponses: 'id, assessmentId, candidateId, completedAt, createdAt'
-    });
-  }
-}
-
-export const db = new TalentFlowDB();

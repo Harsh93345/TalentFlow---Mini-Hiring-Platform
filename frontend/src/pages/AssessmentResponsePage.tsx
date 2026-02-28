@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
 import { useCandidateStore } from '@/stores/candidate-response-store';
 import { type Assessment } from '@/lib/database';
-import { db } from '@/lib/database';
+import { createAssessmentResponse } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 
 interface AssessmentFormProps {
@@ -10,20 +9,9 @@ interface AssessmentFormProps {
 }
 
 
-export const AssessmentForm = ({ assessment,setPreviewAssessmentId }: AssessmentFormProps) => {
+export const AssessmentForm = ({ assessment, setPreviewAssessmentId }: AssessmentFormProps) => {
   const { responses, setResponse } = useCandidateStore();
-  const {toast} = useToast();
-  // Persist responses locally on every change
-  useEffect(() => {
-    db.assessmentResponses.put({
-      id: assessment.id,
-      assessmentId: assessment.id,
-      candidateId: 'candidate-temp', // temp ID
-      responses,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    });
-  }, [responses]);
+  const { toast } = useToast();
 
   const handleChange = (questionId: string, value: any) => {
     setResponse(questionId, value);
@@ -35,14 +23,27 @@ export const AssessmentForm = ({ assessment,setPreviewAssessmentId }: Assessment
     return responses[questionId] === value;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // alert('Responses saved locally!');
-    toast({
-        title: 'Assessment Saved',
-        description: 'Your assessment has been saved successfully'
+    try {
+      await createAssessmentResponse({
+        assessmentId: assessment.id,
+        candidateId: 'candidate-temp',
+        responses,
+        completedAt: new Date().toISOString(),
       });
-    setPreviewAssessmentId(null);
+      toast({
+        title: 'Assessment Saved',
+        description: 'Your assessment has been saved successfully',
+      });
+      setPreviewAssessmentId(null);
+    } catch {
+      toast({
+        title: 'Error',
+        description: 'Failed to save assessment',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (

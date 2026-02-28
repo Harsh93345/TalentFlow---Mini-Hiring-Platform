@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Plus, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { db } from '@/lib/database';
+import { createJob, fetchJobs } from '@/lib/api';
 
 interface CreateJobDialogProps {
   onJobCreated?: () => void;
@@ -41,43 +41,41 @@ export function CreateJobDialog({ onJobCreated, trigger }: CreateJobDialogProps)
     setLoading(true);
 
     try {
-      const maxOrder = await db.jobs.orderBy('order').last();
-      const response = await fetch('/api/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          slug: title.toLowerCase().replace(/\s+/g, '-'),
-          location,
-          department,
-          description,
-          tags,
-          status: 'active',
-          order: (maxOrder?.order || 0) + 1
-        })
+      const jobsRes = await fetchJobs({ pageSize: 5000 });
+      const list = jobsRes.data || [];
+      const maxOrder = list.length
+        ? (list as any[]).reduce((m, j) => Math.max(m, j.order ?? 0), 0)
+        : 0;
+
+      await createJob({
+        title,
+        slug: title.toLowerCase().replace(/\s+/g, "-"),
+        location,
+        department,
+        description,
+        tags,
+        status: "active",
+        order: maxOrder + 1,
       });
 
-      if (!response.ok) throw new Error('Failed to create job');
-
       toast({
-        title: 'Job Created',
-        description: 'Your job posting has been created successfully.'
+        title: "Job Created",
+        description: "Your job posting has been created successfully.",
       });
 
       setOpen(false);
       onJobCreated?.();
-      
-      // Reset form
-      setTitle('');
-      setLocation('');
-      setDepartment('');
-      setDescription('');
+
+      setTitle("");
+      setLocation("");
+      setDepartment("");
+      setDescription("");
       setTags([]);
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to create job. Please try again.',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to create job. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);

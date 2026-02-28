@@ -1,4 +1,4 @@
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ClipboardList, Plus, Eye, Edit, BarChart3, Users, Calendar, CheckCircle } from 'lucide-react';
@@ -6,7 +6,8 @@ import { motion } from 'framer-motion';
 import { AssessmentBuilder } from '@/components/assessments/AssessmentBuilder';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AssessmentForm } from './AssessmentResponsePage';
-import { db, type Assessment } from '@/lib/database';
+import { fetchAssessments } from '@/lib/api';
+import { type Assessment } from '@/lib/database';
 
 
 const AssessmentsPage = () => {
@@ -53,13 +54,12 @@ const AssessmentsPage = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-    const fetchAssessments = async () => {
-        const data = await db.assessments.toArray();
-        setAssessments(data);
+      const load = async () => {
+        const data = await fetchAssessments();
+        setAssessments(Array.isArray(data) ? data : []);
         setLoading(false);
-    };
-
-    fetchAssessments();
+      };
+      load();
     }, []);
     const selectedAssessment:any = assessments.find(a => a.id === previewAssessmentId);
 
@@ -205,7 +205,7 @@ const AssessmentsPage = () => {
                     
                     <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
                       <Calendar className="w-3 h-3" />
-                      <span>Created {assessment.createdAt.toLocaleDateString()}</span>
+                      <span>Created {new Date(assessment.createdAt as string).toLocaleDateString()}</span>
                     </div>
                   </div>
                   
